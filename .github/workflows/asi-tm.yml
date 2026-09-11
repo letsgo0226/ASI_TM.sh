@@ -30,16 +30,20 @@ jobs:
           test "$bytes" -lt 2048
           bash -n ASI_TM.sh
           chmod +x ASI_TM.sh
-      - name: Verify universal s and self-index fixed point
+      - name: Verify universal s self fixed point
         run: |
-          ./ASI_TM.sh 8 0
           ./ASI_TM.sh 3 255
           out=$(./ASI_TM.sh self)
           echo "$out" | python3 -c 'import json,sys;x=json.load(sys.stdin);assert x["SELF_SOLVED"] and x["SELF_LEN"]>0 and x["SELF_INDEX"].startswith("0x")'
+      - name: Verify analytic-continuation certificates
+        run: |
+          out=$(./ASI_TM.sh 1 0)
+          echo "$out"
+          echo "$out" | python3 -c 'import json,sys;x=json.load(sys.stdin);assert x["SCH"]==[1,2,"K"] and x["STIR"][1] and x["FORMAL_RHO"]==[0.5,1] and x["LOG_POLE"] and x["RESIDUE"]==1 and x["MONODROMY"]=="2pi*i" and x["AC"] and x["SELF_SOLVED"]'
       - name: Verify paste-and-run independence
         run: |
           cmd=$(cat ASI_TM.sh)
           cd /tmp
           out=$(bash -c "$cmd" -- 1 257)
           echo "$out"
-          echo "$out" | grep -q '"SELF_SOLVED":true'
+          echo "$out" | python3 -c 'import json,sys;x=json.load(sys.stdin);assert x["LEN"]==2 and x["FORMAL_RHO"]==[0.5,258] and x["AC"] and x["SELF_SOLVED"]'
