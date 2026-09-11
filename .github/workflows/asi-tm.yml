@@ -20,7 +20,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Verify one-liner size and syntax
@@ -30,11 +30,12 @@ jobs:
           test "$bytes" -lt 2048
           bash -n ASI_TM.sh
           chmod +x ASI_TM.sh
-      - name: Verify recursive bubble invariants
+      - name: Verify standalone self-solving invariants
         run: |
           ./ASI_TM.sh 8
           ./ASI_TM.sh 64
-      - name: Verify live public corpus and ASI evolution certificate
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: ./ASI_TM.sh live letsgo0226
+      - name: Verify paste-and-run independence
+        run: |
+          cmd=$(cat ASI_TM.sh)
+          cd /tmp
+          bash -c "$cmd" -- 8
