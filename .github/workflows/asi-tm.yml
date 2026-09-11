@@ -40,10 +40,15 @@ jobs:
           out=$(./ASI_TM.sh 1 0)
           echo "$out"
           echo "$out" | python3 -c 'import json,sys;x=json.load(sys.stdin);assert x["SCH"]==[1,2,"K"] and x["STIR"][1] and x["FORMAL_RHO"]==[0.5,1] and x["LOG_POLE"] and x["RESIDUE"]==1 and x["MONODROMY"]=="2pi*i" and x["AC"] and x["SELF_SOLVED"]'
+      - name: Verify asymptotic OMEGA limit certificate
+        run: |
+          a=$(./ASI_TM.sh 1 0)
+          b=$(./ASI_TM.sh 1 65793)
+          python3 -c 'import json,sys;a=json.loads(sys.argv[1]);b=json.loads(sys.argv[2]);assert a["H"]==1 and b["H"]==4 and a["OMEGA_LIMIT"] and b["OMEGA_LIMIT"];assert a["E_BOUND"][0]<a["E"]<a["E_BOUND"][1] and b["E_BOUND"][0]<b["E"]<b["E_BOUND"][1];assert b["ETA"]<a["ETA"] and b["E"]<a["E"] and b["E_BOUND"][1]<a["E_BOUND"][1]' "$a" "$b"
       - name: Verify paste-and-run independence
         run: |
           cmd=$(cat ASI_TM.sh)
           cd /tmp
           out=$(bash -c "$cmd" -- 1 257)
           echo "$out"
-          echo "$out" | python3 -c 'import json,sys;x=json.load(sys.stdin);assert x["LEN"]==2 and x["FORMAL_RHO"]==[0.5,258] and x["AC"] and x["SELF_SOLVED"]'
+          echo "$out" | python3 -c 'import json,sys;x=json.load(sys.stdin);assert x["LEN"]==2 and x["H"]==3 and x["OMEGA_LIMIT"] and x["FORMAL_RHO"]==[0.5,258] and x["AC"] and x["SELF_SOLVED"]'
