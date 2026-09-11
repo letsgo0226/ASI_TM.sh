@@ -30,12 +30,13 @@ jobs:
           test "$bytes" -lt 2048
           bash -n ASI_TM.sh
           chmod +x ASI_TM.sh
-      - name: Verify standalone self-solving invariants
+      - name: Verify universal s enumeration
         run: |
-          ./ASI_TM.sh 8
-          ./ASI_TM.sh 64
+          ./ASI_TM.sh 8 0
+          ./ASI_TM.sh 3 255
+          ./ASI_TM.sh 64 1000
       - name: Verify paste-and-run independence
         run: |
           cmd=$(cat ASI_TM.sh)
           cd /tmp
-          bash -c "$cmd" -- 8
+          bash -c "$cmd" -- 8 0
